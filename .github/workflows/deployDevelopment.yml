@@ -18,6 +18,7 @@ jobs:
       BUCKET_NAME: ${{ vars.AWS_BUCKET_NAME }}-${{ vars.TF_WORKSPACE }}
       LAMBDA_FUNCTION_NAME: ${{ vars.AWS_LAMBDA_FUNCTION }}-${{ vars.TF_WORKSPACE }}
 
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
