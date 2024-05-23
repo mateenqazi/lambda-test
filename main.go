@@ -22,6 +22,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	brokerEndpointIP := os.Getenv("MQ_ENDPOINT_IP")
 	brokerUsername := os.Getenv("BROKER_USERNAME")
 	brokerPassword := os.Getenv("BROKER_PASSWORD")
+	log.Println(">>>>>>>>", brokerEndpointIP, brokerUsername, brokerPassword, strings.TrimPrefix(brokerEndpointIP, "stomp+ssl://"))
 	brokerEndpointIP = strings.TrimPrefix(brokerEndpointIP, "stomp+ssl://")
 
 	log.Println(">>>>>>>", brokerEndpointIP, brokerUsername, brokerPassword, brokerEndpointIP)
