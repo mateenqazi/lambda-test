@@ -28,10 +28,12 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		brokerEndpointIP = strings.TrimPrefix(brokerEndpointIP, "ssl://")
 	}
 
-	log.Println(">>>>>>>>>>", brokerEndpointIP, brokerUsername, brokerPassword, brokerEndpointIP)
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: true, // for testing purposes only
+	}
 
 	// Create a tls dial and stomp connect to broker
-	netConn, err := tls.Dial("tcp", brokerEndpointIP, &tls.Config{})
+	netConn, err := tls.Dial("tcp", brokerEndpointIP, tlsConfig)
 	if err != nil {
 		log.Fatalln(">>>>>>>>>>>>>>ERROR>>>>>>>>>", err.Error())
 	}
