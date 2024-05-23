@@ -29,7 +29,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	// Create a tls dial and stomp connect to broker
 	netConn, err := tls.Dial("tcp", brokerEndpointIP, &tls.Config{})
 	if err != nil {
-		log.Fatalln(">>>>>>>>>>>>>>>>>>>ERROR>>>>>>>>>", err.Error())
+		log.Fatalln(">>>>>>>>>>>>>>ERROR>>>>>>>>>", err.Error())
 	}
 	defer netConn.Close()
 
