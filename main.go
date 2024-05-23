@@ -23,7 +23,10 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	brokerUsername := os.Getenv("BROKER_USERNAME")
 	brokerPassword := os.Getenv("BROKER_PASSWORD")
 	log.Println(">>>>>>>>", brokerEndpointIP, brokerUsername, brokerPassword, strings.TrimPrefix(brokerEndpointIP, "stomp+ssl://"))
-	brokerEndpointIP = strings.TrimPrefix(brokerEndpointIP, "stomp+ssl://")
+	// Remove "ssl://" prefix if it exists
+	if strings.HasPrefix(brokerEndpointIP, "ssl://") {
+		brokerEndpointIP = strings.TrimPrefix(brokerEndpointIP, "ssl://")
+	}
 
 	log.Println(">>>>>>>", brokerEndpointIP, brokerUsername, brokerPassword, brokerEndpointIP)
 
