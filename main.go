@@ -38,6 +38,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 			tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
 		},
+		KeyLogWriter: os.Stdout, // logs TLS keys to stdout for debugging
 	}
 
 	// Create a tls dial and stomp connect to broker
@@ -100,7 +101,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 200,
-		Body:       fmt.Sprintf("Message sent: %s and recieved also %s", "done", messageBody),
+		Body:       fmt.Sprintf("Message sent: %s and received also %s", "done", messageBody),
 	}
 	return response, nil
 }
