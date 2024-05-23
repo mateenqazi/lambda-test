@@ -21,7 +21,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	// Get the broker endpoint
 	brokerEndpointIP := os.Getenv("MQ_ENDPOINT_IP")
 	brokerUsername := os.Getenv("BROKER_USERNAME")
-	brokerPassword := "Mateen123Test"
+	brokerPassword := os.Getenv("BROKER_PASSWORD")
 	log.Println(">>>>>>>>", brokerEndpointIP, brokerUsername, brokerPassword, strings.TrimPrefix(brokerEndpointIP, "stomp+ssl://"))
 	// Remove "ssl://" prefix if it exists
 	if strings.HasPrefix(brokerEndpointIP, "ssl://") {
@@ -57,54 +57,51 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	defer conn.Disconnect()
 
 	fmt.Print("connection established")
-	log.Println("connection established")
 
-	// // Send a message to a queue on the broker
-	// queueName := "Demo-Queue"
-	// message := request.Body
-	// err = conn.Send(
-	// 	queueName,
-	// 	"text/plain",
-	// 	[]byte(message),
-	// 	nil,
-	// )
-	// if err != nil {
-	// 	log.Printf("Failed to send message: %v", err)
-	// 	return events.APIGatewayProxyResponse{StatusCode: 500}, err
-	// }
+	// Send a message to a queue on the broker
+	queueName := "Demo-Queue"
+	message := request.Body
+	err = conn.Send(
+		queueName,
+		"text/plain",
+		[]byte(message),
+		nil,
+	)
+	if err != nil {
+		log.Printf("Failed to send message: %v", err)
+		return events.APIGatewayProxyResponse{StatusCode: 500}, err
+	}
 
-	// log.Printf("Message sent to the queue: %s", message)
+	log.Printf("Message sent to the queue: %s", message)
 
-	// // Subscribe to a queue on the broker
-	// sub, err := conn.Subscribe(queueName, stomp.AckAuto)
-	// if err != nil {
-	// 	log.Printf("Failed to subscribe to the queue: %v", err)
-	// 	return events.APIGatewayProxyResponse{StatusCode: 500}, err
-	// }
-	// defer sub.Unsubscribe()
+	// Subscribe to a queue on the broker
+	sub, err := conn.Subscribe(queueName, stomp.AckAuto)
+	if err != nil {
+		log.Printf("Failed to subscribe to the queue: %v", err)
+		return events.APIGatewayProxyResponse{StatusCode: 500}, err
+	}
+	defer sub.Unsubscribe()
 
-	// fmt.Print("Connection established, waiting for messages...\n")
+	fmt.Print("Connection established, waiting for messages...\n")
 
-	// // Listen for and process incoming messages
-	// var messageBody string
-	// for {
-	// 	msg := <-sub.C
-	// 	if msg.Err != nil {
-	// 		log.Printf("Failed to receive message: %v", msg.Err)
-	// 		return events.APIGatewayProxyResponse{StatusCode: 500}, msg.Err
-	// 	}
+	// Listen for and process incoming messages
+	var messageBody string
+	for {
+		msg := <-sub.C
+		if msg.Err != nil {
+			log.Printf("Failed to receive message: %v", msg.Err)
+			return events.APIGatewayProxyResponse{StatusCode: 500}, msg.Err
+		}
 
-	// 	// Process the received message (you can modify this part as needed)
-	// 	messageBody = string(msg.Body)
-	// 	log.Printf("Received message from the queue: %s", messageBody)
-	// 	break
-	// }
+		// Process the received message (you can modify this part as needed)
+		messageBody = string(msg.Body)
+		log.Printf("Received message from the queue: %s", messageBody)
+		break
+	}
 
-	// response := events.APIGatewayProxyResponse{
-	// 	StatusCode: 200,
-	// 	Body:       fmt.Sprintf("Message sent: %s and received also %s", "done", messageBody),
-	// }
-	// return response, nil
-
-	return events.APIGatewayProxyResponse{StatusCode: 401}, nil
+	response := events.APIGatewayProxyResponse{
+		StatusCode: 200,
+		Body:       fmt.Sprintf("Message sent: %s and received also %s", "done", messageBody),
+	}
+	return response, nil
 }
