@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -14,6 +15,11 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	brokerEndpointIP := os.Getenv("MQ_ENDPOINT_IP")
 	brokerUsername := os.Getenv("BROKER_USERNAME")
 	brokerPassword := os.Getenv("BROKER_PASSWORD")
+
+	// Remove "ssl://" prefix if present
+	if strings.HasPrefix(brokerEndpointIP, "ssl://") {
+		brokerEndpointIP = strings.TrimPrefix(brokerEndpointIP, "ssl://")
+	}
 
 	// Create a tls.Config with proper settings
 	tlsConfig := &tls.Config{
