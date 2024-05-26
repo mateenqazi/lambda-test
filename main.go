@@ -22,6 +22,8 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		brokerEndpointIP = strings.TrimPrefix(brokerEndpointIP, "ssl://")
 	}
 
+	brokerEndpointIP = "b-b1847bf5-ab6a-4ca4-af8b-1874261411ac-1.mq.us-west-1.amazonaws.com:61614"
+
 	// Load system CAs and add any custom CA if required
 	rootCAs, err := x509.SystemCertPool()
 	if err != nil {
