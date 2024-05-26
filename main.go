@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"log"
 	"os"
 	"strings"
@@ -21,8 +22,27 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		brokerEndpointIP = strings.TrimPrefix(brokerEndpointIP, "ssl://")
 	}
 
+	// Load system CAs and add any custom CA if required
+	rootCAs, err := x509.SystemCertPool()
+	if err != nil {
+		log.Println("Failed to load system CAs:", err)
+		return events.APIGatewayProxyResponse{StatusCode: 500}, err
+	}
+
+	// If you have custom CA, uncomment the following lines and add the CA certificate
+	/*
+	   customCA := []byte(`-----BEGIN CERTIFICATE-----
+	   ...
+	   -----END CERTIFICATE-----`)
+	   if ok := rootCAs.AppendCertsFromPEM(customCA); !ok {
+	       log.Println("Failed to append custom CA")
+	       return events.APIGatewayProxyResponse{StatusCode: 500}, errors.New("failed to append custom CA")
+	   }
+	*/
+
 	// Create a tls.Config with proper settings
 	tlsConfig := &tls.Config{
+		RootCAs:    rootCAs,
 		MinVersion: tls.VersionTLS12,
 		MaxVersion: tls.VersionTLS13,
 		CipherSuites: []uint16{
@@ -31,6 +51,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 			tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
 		},
+		InsecureSkipVerify: true, // Use this only for testing purposes; not recommended for production
 	}
 
 	// Dial the broker using TLS
