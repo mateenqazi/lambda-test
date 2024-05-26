@@ -15,9 +15,9 @@ func main() {
 	brokerUsername := os.Getenv("BROKER_USERNAME")
 	brokerPassword := os.Getenv("BROKER_PASSWORD")
 
-	log.Println("Broker Endpoint:", brokerEndpointIP)
-	log.Println("Broker Username:", brokerUsername)
-	log.Println("Broker Password:", brokerPassword)
+	log.Println("Broker Endpoint MATEEN:", brokerEndpointIP)
+	log.Println("Broker Username MATEEN:", brokerUsername)
+	log.Println("Broker Password MATEEN:", brokerPassword)
 
 	// Ensure the broker endpoint is correctly formatted
 	if strings.HasPrefix(brokerEndpointIP, "ssl://") {
@@ -32,14 +32,14 @@ func main() {
 
 	netConn, err := tls.Dial("tcp", brokerEndpointIP, tlsConfig)
 	if err != nil {
-		log.Fatalln("Error connecting to broker:", err)
+		log.Fatalln("Error connecting to broker MATEEN:", err)
 	}
 	defer netConn.Close()
 
 	conn, err := stomp.Connect(netConn,
 		stomp.ConnOpt.Login(brokerUsername, brokerPassword))
 	if err != nil {
-		log.Fatalln("Failed to connect to the broker:", err)
+		log.Fatalln("Failed to connect to the broker MATEEN:", err)
 	}
 	defer conn.Disconnect()
 
