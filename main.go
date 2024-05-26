@@ -17,16 +17,19 @@ func main() {
 }
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-
 	// Get the broker endpoint
 	brokerEndpointIP := os.Getenv("MQ_ENDPOINT_IP")
 	brokerUsername := os.Getenv("BROKER_USERNAME")
 	brokerPassword := os.Getenv("BROKER_PASSWORD")
-	log.Println(">>>>>>>>", brokerEndpointIP, brokerUsername, brokerPassword, strings.TrimPrefix(brokerEndpointIP, "stomp+ssl://"))
+
+	log.Println("Broker endpoint, before formatting:", brokerEndpointIP)
+
 	// Remove "ssl://" prefix if it exists
 	if strings.HasPrefix(brokerEndpointIP, "ssl://") {
 		brokerEndpointIP = strings.TrimPrefix(brokerEndpointIP, "ssl://")
 	}
+
+	log.Println("Broker endpoint, after formatting:", brokerEndpointIP)
 
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: true, // for testing purposes only
@@ -38,18 +41,16 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 			tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
 		},
-		KeyLogWriter: os.Stdout, // logs TLS keys to stdout for debugging
 	}
 
 	// Create a tls dial and stomp connect to broker
 	netConn, err := tls.Dial("tcp", brokerEndpointIP, tlsConfig)
 	if err != nil {
-		log.Fatalln(">>>>>>>>>>>>>>ERROR>>>>>>>>>", err.Error())
+		log.Fatalf("Failed to dial broker: %v", err)
 	}
 	defer netConn.Close()
 
-	conn, err := stomp.Connect(netConn,
-		stomp.ConnOpt.Login(brokerUsername, brokerPassword))
+	conn, err := stomp.Connect(netConn, stomp.ConnOpt.Login(brokerUsername, brokerPassword))
 	if err != nil {
 		log.Printf("Failed to connect to the broker: %v", err)
 		return events.APIGatewayProxyResponse{StatusCode: 500}, err
@@ -61,12 +62,7 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	// Send a message to a queue on the broker
 	queueName := "Demo-Queue"
 	message := request.Body
-	err = conn.Send(
-		queueName,
-		"text/plain",
-		[]byte(message),
-		nil,
-	)
+	err = conn.Send(queueName, "text/plain", []byte(message), nil)
 	if err != nil {
 		log.Printf("Failed to send message: %v", err)
 		return events.APIGatewayProxyResponse{StatusCode: 500}, err
