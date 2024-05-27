@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
 
+
     env:
       TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
       AWS_REGION: ${{ vars.AWS_REGION }}
